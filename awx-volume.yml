@@ -5,21 +5,27 @@ metadata:
   namespace: awx
 spec:
   storageClassName: awx-postgresql-pv
-  volumeMode: Filesystem
+  capacity:
+    storage: 50Gi
   accessModes:
     - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 192.168.1.11
+    path: "/volume2/NFS/homelab/awx-volume/postgresql"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: awx-projects-pv
+  namespace: awx
+spec:
+  storageClassName: awx-projects-pv
   capacity:
     storage: 20Gi
+  accessModes:
+    - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  local:
-    path: /nfs/homelab/awx-volume/postgresql
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/hostname
-            operator: In
-            values:
-            - cf-k8s-master
-            - cf-k8s-node1
-            - cf-k8s-node2
+  nfs:
+    server: 192.168.1.11
+    path: "/volume2/NFS/homelab/awx-volume/projects"

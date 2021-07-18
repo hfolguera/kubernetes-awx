@@ -5,19 +5,49 @@ Repository to deploy Ansible AWX to kubernetes cluster
 ### 1. Create AWX volume
 `kubectl apply -f awx-volume.yml`
 
-### 2. Execute ansible installation playbook
+Since I'm using a 3-node k8s cluster, I need to use a HA storage class. In this case, I've created a directory on my NFS server and assigned 1001:1001 as user owner and group.
+
+### 2. Create the AWX namespace
+In order to isolate AWX resources from other projects, I create a dedicated namespace with the following command:
 ```
-cd installer
-ansible-playbook -i inventory install.yml
+kubectl create namespace awx
 ```
+
+### 3. Create the AWX Operator
+Since version 18, AWX's preferred installation method is to use a Kubernetes Operator. 
+The `awx-operator.yaml` contains the required resources for 0.12.0 version. You can check newer versions in (https://github.com/ansible/awx-operator/releases) and get the file replacing <TAG> from the URL: `https://raw.githubusercontent.com/ansible/awx-operator/<TAG>/deploy/awx-operator.yaml`
+
+```
+kubectl apply -f awx-operator.yaml -n awx
+```
+
+Verify the operator has been successfully deployed with:
+```
+kubectl get all -n awx
+```
+
+### 4. Create the AWX Instance
+Once the operator is up & running, deploy an AWX instance with the following command:
+
+```
+kubectl apply -f awx-instance.yaml
+```
+
+The instance deployment will take some minutes and you can check the progress by reading the operator's log with `kubectl logs -f deployments/awx-operator -n awx`.
+Along with the AWX instance, the operator will also deploy a postgresql container.
+
+Again, verify the instance has been deployed correctly with:
+```
+kubectl get all -n awx
+```
+
 
 ## Notes
-1. By default, playbook tries to deploy the `stable/postgresql` image and it is deprecated. Code has been modified to deploy `bitnami/postgresql`image.
-2. CPU and Memory resources has been scaled down since its a testing installation. To reduce resources use `kubectl edit deployment.apps/awx -n awx` and search for cpu and memory properties.
-3. Metallb annotation has been configured in order to use a LoadBalancer service.
+1. CPU and Memory resources has been scaled down since its a testing installation. To reduce resources use `kubectl edit deployment.apps/awx -n awx` and search for cpu and memory properties.
+2. Metallb annotation has been configured in order to use a LoadBalancer service.
 
 ## References
-This repository is based on Ansible's official deployment guide (https://github.com/ansible/awx)
+This repository is based on Ansible's official deployment guide (https://github.com/ansible/awx) and (https://github.com/ansible/awx-operator)
 
 ## Known Issues
 1. If postgres pod stays in CrashLoop state, verify its pv configuration. Currently using synology NFS with properties (no-mapping), using filesystem storage class (instead of NFS) with 1024:1001 owner and 777 permissions.

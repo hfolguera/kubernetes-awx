@@ -1,0 +1,50 @@
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: awx
+  namespace: awx
+spec:
+  service_type: LoadBalancer
+  hostname: awx.calfolguera.com
+  loadbalancer_annotations: |
+    metallb.universe.tf/address-pool: awx-pool
+  postgres_resource_requirements:
+    requests:
+      cpu: 500m
+      memory: 500Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  postgres_storage_requirements:
+    requests:
+      storage: 8Gi
+    limits:
+      storage: 50Gi
+  postgres_storage_class: awx-postgresql-pv
+  web_resource_requirements:
+    requests:
+      cpu: 500m
+      memory: 500Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  task_resource_requirements:
+    requests:
+      cpu: 500m
+      memory: 500Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+  ee_resource_requirements:
+    requests:
+      cpu: 500m
+      memory: 500Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  projects_persistence: true
+  projects_storage_class: awx-projects-pv
+  projects_storage_size: 20Gi
+
+
