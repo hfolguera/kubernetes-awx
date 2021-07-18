@@ -57,3 +57,4 @@ This repository is based on Ansible's official deployment guide (https://github.
   1. Connect to the awx-redis docker with the redis user: `docker exec -it --user redis <dockerid> /bin/bash`
   2. Change the permissions to /data: `chmod 777 /data`
   3. *This is not a definitive solution, since in the next restart the same issue will appear.* 
+5. If the message "Failed to retrieve configuration" appears when trying to login, the permissions on projects folder is wrong. Connect to awx-web container and fix it manually with `chmod 755 /var/lib/awx/projects` and verify directory owner and group.
