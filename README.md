@@ -15,15 +15,24 @@ kubectl create namespace awx
 
 ### 3. Create the AWX Operator
 Since version 18, AWX's preferred installation method is to use a Kubernetes Operator. 
-The `awx-operator.yaml` contains the required resources for 0.12.0 version. You can check newer versions in (https://github.com/ansible/awx-operator/releases) and get the file replacing <TAG> from the URL: `https://raw.githubusercontent.com/ansible/awx-operator/<TAG>/deploy/awx-operator.yaml`
+Download the last version of the operator at (https://github.com/ansible/awx-operator/releases) with the following command:
 
 ```
-kubectl apply -f awx-operator.yaml -n awx
+wget https://github.com/ansible/awx-operator/archive/refs/tags/0.15.0.tar.gz
+tar -xzvf 0.15.0.tar.gz
+cd awx-operator-0.15.0
+export NAMESPACE=awx
+make deploy
 ```
 
-Verify the operator has been successfully deployed with:
+Wait a couple of minutes and verify the operator has been successfully deployed with:
 ```
 kubectl get all -n awx
+```
+
+Finally, set the current namespace to the AWX namespace:
+```
+kubectl config set-context --current --namespace=$NAMESPACE
 ```
 
 ### 4. Create the AWX Instance
@@ -33,7 +42,7 @@ Once the operator is up & running, deploy an AWX instance with the following com
 kubectl apply -f awx-instance.yaml
 ```
 
-The instance deployment will take some minutes and you can check the progress by reading the operator's log with `kubectl logs -f deployments/awx-operator -n awx`.
+The instance deployment will take some minutes and you can check the progress by reading the operator's log with `kubectl logs -f deployment.apps/awx-operator-controller-manager -c awx-manager`.
 Along with the AWX instance, the operator will also deploy a postgresql container.
 
 Again, verify the instance has been deployed correctly with:
