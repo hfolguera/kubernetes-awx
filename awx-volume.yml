@@ -9,7 +9,7 @@ spec:
     storage: 50Gi
   accessModes:
     - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Recycle
   nfs:
     server: 192.168.1.11
     path: "/volume2/NFS/homelab/awx-volume/postgresql"
@@ -25,7 +25,7 @@ spec:
     storage: 20Gi
   accessModes:
     - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Recycle
   nfs:
     server: 192.168.1.11
     path: "/volume2/NFS/homelab/awx-volume/projects"

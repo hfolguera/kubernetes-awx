@@ -24,22 +24,22 @@ spec:
   postgres_storage_class: awx-postgresql-pv
   web_resource_requirements:
     requests:
-      cpu: 500m
-      memory: 500Mi
-    limits:
       cpu: 1000m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
       memory: 2Gi
   task_resource_requirements:
     requests:
       cpu: 500m
-      memory: 500Mi
+      memory: 1Gi
     limits:
-      cpu: 2000m
+      cpu: 1000m
       memory: 2Gi
   ee_resource_requirements:
     requests:
       cpu: 500m
-      memory: 500Mi
+      memory: 1Gi
     limits:
       cpu: 1000m
       memory: 2Gi

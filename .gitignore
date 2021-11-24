@@ -2,3 +2,6 @@
 *.old
 *.swp
 password
+*.tar.gz
+*.zip
+awx-operator-*
