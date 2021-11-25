@@ -5,7 +5,7 @@ Repository to deploy Ansible AWX to kubernetes cluster
 ### 1. Create AWX volume
 `kubectl apply -f awx-volume.yml`
 
-Since I'm using a 3-node k8s cluster, I need to use a HA storage class. In this case, I've created a directory on my NFS server and assigned 1001:1001 as user owner and group.
+Since I'm using a 3-node k8s cluster, I need to use an HA storage class. In this case, I've created a directory on my NFS server and assigned 1001:1001 as user owner and group.
 
 ### 2. Create the AWX namespace
 In order to isolate AWX resources from other projects, I create a dedicated namespace with the following command:
@@ -50,6 +50,13 @@ Again, verify the instance has been deployed correctly with:
 kubectl get all -n awx
 ```
 
+### 5. Obtain the admin password
+When AWX pod is fully deployed, you can get the admin password with the following command:
+```
+kubectl get secret <resourcename>-admin-password -o jsonpath="{.data.password}" | base64 --decode
+```
+
+Access the UI using your network configuration and test it.
 
 ## Notes
 1. CPU and Memory resources has been scaled down since its a testing installation. To reduce resources use `kubectl edit deployment.apps/awx -n awx` and search for cpu and memory properties.
