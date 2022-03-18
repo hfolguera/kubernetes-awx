@@ -10,7 +10,7 @@ Since I'm using a 3-node k8s cluster, I need to use an HA storage class. In this
 ### 2. Create the AWX namespace
 In order to isolate AWX resources from other projects, I create a dedicated namespace with the following command:
 ```
-kubectl create namespace awx
+kubectl apply -f awx-namespace.yaml
 ```
 
 ### 3. Create the AWX Operator
@@ -18,9 +18,9 @@ Since version 18, AWX's preferred installation method is to use a Kubernetes Ope
 Download the last version of the operator at (https://github.com/ansible/awx-operator/releases) with the following command:
 
 ```
-wget https://github.com/ansible/awx-operator/archive/refs/tags/0.15.0.tar.gz
-tar -xzvf 0.15.0.tar.gz
-cd awx-operator-0.15.0
+wget https://github.com/ansible/awx-operator/archive/refs/tags/0.18.0.tar.gz
+tar -xzvf 0.18.0.tar.gz
+cd awx-operator-0.18.0
 export NAMESPACE=awx
 make deploy
 ```
@@ -53,7 +53,8 @@ kubectl get all -n awx
 ### 5. Obtain the admin password
 When AWX pod is fully deployed, you can get the admin password with the following command:
 ```
-kubectl get secret <resourcename>-admin-password -o jsonpath="{.data.password}" | base64 --decode
+kubectl get secrets -n awx
+kubectl get secret <resourcename>-admin-password -o jsonpath="{.data.password}" -n awx | base64 --decode
 ```
 
 Access the UI using your network configuration and test it.
@@ -74,3 +75,6 @@ This repository is based on Ansible's official deployment guide (https://github.
   2. Change the permissions to /data: `chmod 777 /data`
   3. *This is not a definitive solution, since in the next restart the same issue will appear.* 
 5. If the message "Failed to retrieve configuration" appears when trying to login, the permissions on projects folder is wrong. Connect to awx-web container and fix it manually with `chmod 755 /var/lib/awx/projects` and verify directory owner and group.
+6. "Fatal glibc error: CPU does not support x86-64-v2"
+  1. If you are running your host machine in a virtual environment (VMWare, proxmox, ...) you have to change Processor type to support x86-64-v2. Proxmox: Type=Host
+  2. If you are running on bare metal, your CPU does not suport x86-64-v2 instructions
