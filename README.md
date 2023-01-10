@@ -25,14 +25,43 @@ Install the AWX operator and deploy an AWX instance with the following command:
 kustomize build . | kubectl apply -f -
 ```
 
+Check the awx-manager logs to verify the deployment has finished:
+```
+kubectl logs -f deployment.apps/awx-operator-controller-manager -n awx -c awx-manager
+```
+
 ### 4. Obtain the admin password
 When AWX pod is fully deployed, you can get the admin password with the following command:
 ```
 kubectl get secrets -n awx
 kubectl get secret awx-admin-password -o jsonpath="{.data.password}" -n awx | base64 --decode
+kubectl get secret awx-admin-password -o jsonpath="{.data.password}" -n awx | base64 --decode > password
 ```
 
+> **Note:** Make sure the password is stored in a file called `password` (which is excluded to git uploads through .gitignore) and it is used by the backup script
+
 Access the UI using your network configuration and test it.
+
+
+## Install AWX CLI
+### 1. Install python3
+```
+yum install -y python3
+```
+
+### 2. Install AWX CLI
+```
+pip3 install awxkit
+```
+
+## Backup & Restore
+The `backup.sh` script exports the AWX configuration for backup purposes. Sometimes is easier to destroy all the AWX deployment and recreate it instead of upgrading; but configuration must be kept if we don't want to lose all the hosts, groups and jobs already created.
+
+To schedule a daily backup add the following line to your crontab:
+```
+0 0 * * * cd /root/kubernetes-awx; ./backup.sh
+```
+
 
 ## Notes
 1. CPU and Memory resources has been scaled down since its a testing installation. To reduce resources use `kubectl edit deployment.apps/awx -n awx` and search for cpu and memory properties.
